@@ -19,10 +19,11 @@ const saved_cities_ddl = document.querySelector("#cities_ddl")
 let iserror = "";
 const bodyElement = document.body;
 
-
+//set local storage key to store cities
 if (!localStorage.getItem("cities")) {
     localStorage.setItem("cities", JSON.stringify([]));
 }
+
 popUpDiv.classList.add("hideCustomPopUp");
 cityName.addEventListener("change", updateWeather);
 toggle_btn.addEventListener("click", changeTemperatureFormat);
@@ -41,7 +42,7 @@ user_Location.addEventListener("click", () => {
     });
 });
 
-
+//asynchronous function to get weather via API call
 async function getWeather(city){
     try {
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKey}&units=metric`);
@@ -67,7 +68,7 @@ async function getWeather(city){
 }
 }
 
-
+//function to update divs with new data as per changed inputs
 async function updateWeather(LocCity){
     try{
         let val = "";
@@ -125,4 +126,143 @@ async function updateWeather(LocCity){
     catch(err) {
         alert(err);
     }
+}
+
+//function to change Temperature format when clicked
+function changeTemperatureFormat() {
+    if(temperature.innerHTML != ""){
+        if(temperature.textContent.includes("°C")) {
+            let old_temp = temperature.textContent.split("°")[0];
+            let new_temp = (old_temp *9/5) + 32;
+            temperature.innerHTML = new_temp + "°F";
+        }
+        else if(temperature.innerHTML.includes("°F")) {
+            let old_temp = temperature.textContent.split("°")[0];
+            let new_temp = (old_temp -32) * 5/9;
+            temperature.innerHTML = (new_temp) + "°C"
+        }
+    } else{
+        alert("Temperature not provided")
+    }
+}
+
+//asunchronous function to get forecast data
+async function get5dayForecast(city) {
+    try{
+        forecast_div.innerHTML="";
+
+        const extendedDays_res = await fetch (`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&units=metric`);
+        const extendedDays_data = await extendedDays_res.json();
+        console.log("extended days data is: ", extendedDays_data);
+        const today = new Date().getDate();
+        let dailyforecast = extendedDays_data.list
+        .filter(item => item.dt_txt.includes("12:00:00"))
+        .filter(item => new Date(item.dt_txt).getDate() !== today);
+        console.log("daily forecast is: ", dailyforecast);
+       dailyforecast.forEach(perDay => {
+        let parent_div = document.createElement("div");
+        parent_div.classList.add("forecast_parent")
+        let day = document.createElement("p");
+        let temp_img = "";
+        let temp = document.createElement("p");
+
+        //for temperature
+        //console.log("per day temp is: " , perDay.main.temp);
+        
+
+        //for temperature display image
+        if(perDay.main.temp < 20){
+            temp_img = '<i class="fa-solid fa-snowflake"></i>'
+            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+            
+        }
+        else if(perDay.main.temp>=20 && perDay.main.temp<=30) {
+            temp_img = '<i class="fa-regular fa-sun"></i>';
+            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+        }
+        else {
+            temp_img = '<i class="fa-solid fa-sun"></i>';
+            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+        }
+
+        
+
+        //for day according to the date
+        let date_day = perDay.dt_txt.split(" ")[0];
+        let dateObj = new Date(date_day);
+        let dayIndex = dateObj.getDay();
+
+        const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+        let dayName = days[dayIndex];
+        day.innerHTML = dayName;
+
+        parent_div.append(day, temp);
+        forecast_div.append(parent_div);
+       });
+    } catch(error){
+        console.log(error);
+    }
+    
+}
+
+//function toshow custom popup in case of error
+function showPopUp(message) {
+    if(message!= "") {
+        popupPara.textContent = message;
+        popUpDiv.classList.remove("customPopUp");
+        popUpDiv.classList.add("showCustomPopUp");
+        /*setTimeout(() => {
+            popUpDiv.classList.remove("showCustomPopUp");
+        popUpDiv.classList.add("customPopUp");
+    }, 3000);*/
+    }
+}
+
+//function to show saved cities from local storage if any
+function showSavedCities(){
+    let saved_cities = JSON.parse(localStorage.getItem("cities")) || [];
+    console.log("saved cities on load are: ", saved_cities);
+    if(saved_cities.length>0) {
+        //let savedCitiesArea = document.querySelector("#saved_cities");
+        savedCitiesArea.classList.add("showSavedCities");
+        //savedCitiesArea.classList.add("showSavedCities");
+        console.log("class name is ", savedCitiesArea.className);
+         option_ddl.innerHTML = '<option value="">Select Item</option>'
+
+    //const saved_cities = JSON.parse( localStorage.getItem("cities")) || [];
+    //console.log("saved cities are: ", saved_cities);
+    saved_cities.forEach(city_saved => {
+        console.log(city_saved);
+        let option = document.createElement("option");
+        option.innerHTML = city_saved;
+        option.value = city_saved;
+        option_ddl.appendChild(option);
+    });
+    }
+    else {
+        savedCitiesArea.classList.add("saved_cities")
+    }
+}
+
+//function to get weather based on location of the device.
+async function getWeatherbyLoc(lat, lon) {
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APIKey}&units=metric`;
+
+  try{
+    const responseLoc = await fetch(url);
+    const dataLoc = await responseLoc.json();
+    console.log(dataLoc);
+    console.log(dataLoc.name);
+
+    if (dataLoc.cod == 200){
+        updateWeather(dataLoc.name);
+    }
+    else{
+        showPopUp("error identidying device's location.");
+    }
+  }
+  catch(err) {
+    showPopUp(err);
+  }
 }
