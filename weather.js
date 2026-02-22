@@ -16,6 +16,7 @@ const user_Location = document.querySelector("#location")
 const option_ddl = document.querySelector("#cities_ddl")
 const savedCitiesArea = document.querySelector("#saved_cities");
 const saved_cities_ddl = document.querySelector("#cities_ddl")
+let loc_city = "";
 let iserror = "";
 const bodyElement = document.body;
 
@@ -37,7 +38,7 @@ user_Location.addEventListener("click", () => {
     navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        console.log(pos.coords.latitude, pos.coords.longitude);
+        //console.log(pos.coords.latitude, pos.coords.longitude);
         getWeatherbyLoc(lat,lon);
     });
 });
@@ -59,7 +60,7 @@ async function getWeather(city){
             return null;
         }
         else{
-            //console.log(data);
+            console.log(data);
             return data;
         }
 
@@ -69,20 +70,21 @@ async function getWeather(city){
 }
 
 //function to update divs with new data as per changed inputs
-async function updateWeather(LocCity){
+async function updateWeather() {
     try{
         let val = "";
-        if(LocCity == ""){
+        if(loc_city == ""){
             val = cityName.value || saved_cities_ddl.value;
         }
         else{
-            val = LocCity;
+            val = loc_city;
         }
         
         if(val.length >0) {
             //cityName.value = val;
             let city_data = await getWeather(val);
             if(!city_data) {
+                showPopUp("city name not found");
                 return;
             }
             else{
@@ -90,7 +92,7 @@ async function updateWeather(LocCity){
                 if(city.length>0){
                     let cities = JSON.parse(localStorage.getItem("cities")) || [];
                     if(!cities.includes(city)){
-                        console.log("citiies is " , cities)
+                        //console.log("citiies is " , cities)
                         cities.push(city);
                         localStorage.setItem("cities", JSON.stringify(cities));
                     }
@@ -122,9 +124,10 @@ async function updateWeather(LocCity){
         else{
             showPopUp("City Name can't be empty");
         }
+        val = "";
     }
     catch(err) {
-        alert(err);
+        showPopUp(err);
     }
 }
 
@@ -142,7 +145,7 @@ function changeTemperatureFormat() {
             temperature.innerHTML = (new_temp) + "°C"
         }
     } else{
-        alert("Temperature not provided")
+        showPopUp("Temperature not provided")
     }
 }
 
@@ -153,12 +156,12 @@ async function get5dayForecast(city) {
 
         const extendedDays_res = await fetch (`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&units=metric`);
         const extendedDays_data = await extendedDays_res.json();
-        console.log("extended days data is: ", extendedDays_data);
+        //console.log("extended days data is: ", extendedDays_data);
         const today = new Date().getDate();
         let dailyforecast = extendedDays_data.list
         .filter(item => item.dt_txt.includes("12:00:00"))
         .filter(item => new Date(item.dt_txt).getDate() !== today);
-        console.log("daily forecast is: ", dailyforecast);
+        //console.log("daily forecast is: ", dailyforecast);
        dailyforecast.forEach(perDay => {
         let parent_div = document.createElement("div");
         parent_div.classList.add("forecast_parent")
@@ -201,7 +204,7 @@ async function get5dayForecast(city) {
         forecast_div.append(parent_div);
        });
     } catch(error){
-        console.log(error);
+        showPopUp(error);
     }
     
 }
@@ -252,11 +255,13 @@ async function getWeatherbyLoc(lat, lon) {
   try{
     const responseLoc = await fetch(url);
     const dataLoc = await responseLoc.json();
-    console.log(dataLoc);
-    console.log(dataLoc.name);
+    //console.log(dataLoc);
+    //console.log(dataLoc.name);
 
     if (dataLoc.cod == 200){
-        updateWeather(dataLoc.name);
+        loc_city = dataLoc.name;
+        console.log("city name is : ", loc_city);
+        updateWeather();
     }
     else{
         showPopUp("error identidying device's location.");
