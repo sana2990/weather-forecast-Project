@@ -1,3 +1,52 @@
     body.no-scroll {
     overflow: hidden;
 }
+
+#weather_img {
+        margin: 12px;
+        padding: 10px;
+        width: 250px;
+        height: 250px;
+    }
+    .forecast_parent {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        border: 2px solid black;
+    }
+
+    .saved_cities {
+        visibility: hidden;
+    }
+    .showSavedCities {
+        visibility: visible;
+    }
+
+    .customPopUp {
+         visibility: hidden;
+    }
+
+    .showCustomPopUp {
+        position: fixed;
+        top: 50%; /*top:0 right:0 bottom:0 left:0 */
+        left: 50%;
+        transform: translate(-50%,-50%);
+        background-color: white;
+        padding: 20px;
+        border: 2px solid black;
+        z-index: 9999;
+        visibility: visible;
+    }
+
+    .messageBox {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    #closePopup_btn {
+        border: 2px solid black;
+        border-radius: 10px;
+        width: 70px;
+    }
