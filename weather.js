@@ -11,11 +11,13 @@ const wind_deg = document.querySelector("#deg");
 const forecast_div = document.querySelector(".forecast");
 const popUpDiv = document.querySelector("#customPopUp");
 const popupPara = document.querySelector("#popupMessagepara");
-const popupClose = document.querySelector("#closePopup_btn")
-const user_Location = document.querySelector("#location")
-const option_ddl = document.querySelector("#cities_ddl")
+const popupClose = document.querySelector("#closePopup_btn");
+const user_Location = document.querySelector("#Location");
+const option_ddl = document.querySelector("#cities_ddl");
 const savedCitiesArea = document.querySelector("#saved_cities");
-const saved_cities_ddl = document.querySelector("#cities_ddl")
+const saved_cities_ddl = document.querySelector("#cities_ddl");
+const todays_date = document.querySelector("#todays_date");
+const humidity = document.querySelector("#humidity");
 let loc_city = "";
 let iserror = "";
 const bodyElement = document.body;
@@ -60,7 +62,7 @@ async function getWeather(city){
             return null;
         }
         else{
-            console.log(data);
+            //console.log(data);
             return data;
         }
 
@@ -101,22 +103,38 @@ async function updateWeather() {
                 else{
                     savedCitiesArea.classList.add("saved_cities");
                 }
-                curr_city.innerHTML = val;
+                curr_city.innerHTML = val.toUpperCase();
                 temperature.textContent = city_data.main.temp + "°C";
                 air_stat.textContent = "wind speed: " + city_data.wind.speed + "kph";
-                feels_like.innerHTML = "feels like: " + city_data.main.feels_like + "C";
+                feels_like.innerHTML = "feels like: " + city_data.main.feels_like + "°";
                 wind_deg.innerHTML = "degree: " + city_data.wind.deg;
+                let today = new Date();
+                todays_date.innerHTML = today.toDateString();
+                humidity.innerHTML = "humidity: " + city_data.main.humidity + "%";
 
-                if(city_data.main.temp>=21 && city_data.main.temp<36) {
-                    bodyElement.style.backgroundImage = 'url("./images/sunny_bg.gif")';
+                if(city_data.weather[0].main == "Clear") {
+                    console.log(bodyElement)
+                    bodyElement.style.backgroundImage = 'url("./pictures/sunny.avif")';
+                    
                 }
-                else if(city_data.main.temp<21){
-                    bodyElement.style.backgroundImage = 'url("./images/coldweather.gif")';
+                else if(city_data.main.feels_like < 15) {
+                    bodyElement.style.backgroundImage = 'url("./pictures/winter.webp")';
                 }
-                else if(city_data.main.temp>=36){
-                    bodyElement.style.backgroundImage = 'url("./images/verySunnybg.gif")';
+                else if(city_data.main.feels_like>= 40){
+                    bodyElement.style.backgroundImage = 'url("./pictures/sunny_wallpaper.jpg")';
                 }
+                else if(city_data.weather[0].main == "clouds") {
+                    bodyElement.style.backgroundImage = 'url("./pictures/cloudy.avif")';
+                }
+                else if((city_data.weather[0].main == "Rain") || (city_data.weather[0].main == "drizzle")) {
+                    bodyElement.style.backgroundImage = 'url("./pictures/rain.webp")'
+                }
+
+                //bodyElement.style.backgroundRepeat = "no-repeat";
                 get5dayForecast(val);
+                if(city_data.main.feels_like >=40){
+                    showPopUp("Temperature is too high!!! Keep Hydrared..");
+                }
                 cityName.value=""
                 saved_cities_ddl.selectedIndex = 0;
             }
@@ -156,39 +174,49 @@ async function get5dayForecast(city) {
 
         const extendedDays_res = await fetch (`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}&units=metric`);
         const extendedDays_data = await extendedDays_res.json();
-        //console.log("extended days data is: ", extendedDays_data);
         const today = new Date().getDate();
         let dailyforecast = extendedDays_data.list
         .filter(item => item.dt_txt.includes("12:00:00"))
         .filter(item => new Date(item.dt_txt).getDate() !== today);
-        //console.log("daily forecast is: ", dailyforecast);
+        console.log("daily forecast is: ", dailyforecast);
        dailyforecast.forEach(perDay => {
         let parent_div = document.createElement("div");
         parent_div.classList.add("forecast_parent")
         let day = document.createElement("p");
         let temp_img = "";
         let temp = document.createElement("p");
+        let feelsLike = document.createElement("p");
+        let humid = document.createElement("p");
 
         //for temperature
         //console.log("per day temp is: " , perDay.main.temp);
         
 
         //for temperature display image
-        if(perDay.main.temp < 20){
+        if ((perDay.weather.main == "rain") || (perDay.weather.main == "drizzle")) {
+            temp_img = '<i class="fa-solid fa-cloud-rain"></i>';
+            temp.innerHTML = "Temp: " + perDay.main.temp + "°C" + temp_img;
+        }
+        else {
+
+            if(perDay.main.temp < 20){
             temp_img = '<i class="fa-solid fa-snowflake"></i>'
-            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+            temp.innerHTML = "Temp: " + perDay.main.temp + "°C" + temp_img;
             
         }
         else if(perDay.main.temp>=20 && perDay.main.temp<=30) {
             temp_img = '<i class="fa-regular fa-sun"></i>';
-            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+            temp.innerHTML = "Temp: " + perDay.main.temp + "°C" + temp_img;
         }
         else {
             temp_img = '<i class="fa-solid fa-sun"></i>';
-            temp.innerHTML = perDay.main.temp + "°C" + temp_img;
+            temp.innerHTML = "Temp: " + perDay.main.temp + "°C" + temp_img;
+        }
         }
 
-        
+        feelsLike.innerHTML = "Feels Like" + perDay.main.feels_like + "°C"
+        humid.innerHTML = "Humidity: " + perDay.main.humidity;
+
 
         //for day according to the date
         let date_day = perDay.dt_txt.split(" ")[0];
@@ -200,7 +228,7 @@ async function get5dayForecast(city) {
         let dayName = days[dayIndex];
         day.innerHTML = dayName;
 
-        parent_div.append(day, temp);
+        parent_div.append(day, temp, feelsLike, humid);
         forecast_div.append(parent_div);
        });
     } catch(error){
@@ -225,18 +253,18 @@ function showPopUp(message) {
 //function to show saved cities from local storage if any
 function showSavedCities(){
     let saved_cities = JSON.parse(localStorage.getItem("cities")) || [];
-    console.log("saved cities on load are: ", saved_cities);
+    //console.log("saved cities on load are: ", saved_cities);
     if(saved_cities.length>0) {
         //let savedCitiesArea = document.querySelector("#saved_cities");
         savedCitiesArea.classList.add("showSavedCities");
         //savedCitiesArea.classList.add("showSavedCities");
-        console.log("class name is ", savedCitiesArea.className);
+        //console.log("class name is ", savedCitiesArea.className);
          option_ddl.innerHTML = '<option value="">Select Item</option>'
 
     //const saved_cities = JSON.parse( localStorage.getItem("cities")) || [];
     //console.log("saved cities are: ", saved_cities);
     saved_cities.forEach(city_saved => {
-        console.log(city_saved);
+        //console.log(city_saved);
         let option = document.createElement("option");
         option.innerHTML = city_saved;
         option.value = city_saved;
@@ -260,7 +288,7 @@ async function getWeatherbyLoc(lat, lon) {
 
     if (dataLoc.cod == 200){
         loc_city = dataLoc.name;
-        console.log("city name is : ", loc_city);
+        //console.log("city name is : ", loc_city);
         updateWeather();
     }
     else{
