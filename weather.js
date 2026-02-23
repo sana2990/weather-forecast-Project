@@ -13,7 +13,7 @@ const popUpDiv = document.querySelector("#customPopUp");
 const popupPara = document.querySelector("#popupMessagepara");
 const popupClose = document.querySelector("#closePopup_btn");
 const user_Location = document.querySelector("#Location");
-const option_ddl = document.querySelector("#cities_ddl");
+//const option_ddl = document.querySelector("#cities_ddl");
 const savedCitiesArea = document.querySelector("#saved_cities");
 const saved_cities_ddl = document.querySelector("#cities_ddl");
 const todays_date = document.querySelector("#todays_date");
@@ -35,6 +35,7 @@ saved_cities_ddl.addEventListener("change", updateWeather);
 popupClose.addEventListener("click", () => {
     popUpDiv.classList.remove("showCustomPopUp");
     popUpDiv.classList.add("customPopUp");
+    clearValues()
 })
 user_Location.addEventListener("click", () => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -238,13 +239,13 @@ function showSavedCities(){
     let saved_cities = JSON.parse(localStorage.getItem("cities")) || [];
     if(saved_cities.length>0) {
         savedCitiesArea.classList.add("showSavedCities");
-         option_ddl.innerHTML = '<option value="">Select Item</option>'
+         saved_cities_ddl.innerHTML = '<option value="">Select Item</option>'
 
         saved_cities.forEach(city_saved => {
         let option = document.createElement("option");
         option.innerHTML = city_saved;
         option.value = city_saved;
-        option_ddl.appendChild(option);
+        saved_cities_ddl.appendChild(option);
     });
     }
     else {
@@ -271,4 +272,9 @@ async function getWeatherbyLoc(lat, lon) {
   catch(err) {
     showPopUp(err);
   }
+}
+
+function clearValues(){
+    cityName.value = ""
+    saved_cities_ddl.selectedIndex = 0;
 }
