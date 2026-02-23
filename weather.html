@@ -8,58 +8,62 @@
     <link rel="stylesheet" href="weather.css">
     <script src="https://kit.fontawesome.com/05cc87699d.js" crossorigin="anonymous"></script>
 </head>
-<body>
-    <div class="flex flex-row gap-2 m-3 p-2">
-        <div class="flex flex-col">
-            <div class="mt-3 pt-4">
-                <button id="toggle_btn" class="border-2 rounded-2xl">toggle °C/°F</button>
-            </div>
-            <div class="mt-3 pt-4">
-                <button>weather</button>
-            </div>
-            <div class="mt-3 pt-4">
-                <button id="location" class="bord rounded-2xl">location</button>
-            </div>
+<body class="bg-cyan-300 min-h-screen">
+    <header class="flex flex-col md:flex-row" >
+        <div class="flex-1">
+            <h1 class="page_hdr">Weather Atlas</h1>
         </div>
-        <div class="flex flex-1 box-border border-2 min-h-screen bg-amber-300 h- align-middle justify-around">
-            <div class="border-2">
+        <div class="flex mt-3 pt-4 m-3 p-2">
+            <button id="toggle_btn" class="border-2 rounded-2xl bg-purple-400 m-2 p-2">Toggle °C/°F</button>
+        </div>
+        <div class="flex mt-3 pt-4 m-3 p-2">
+            <button id="Location" class=" border-2 rounded-2xl bg-purple-400">Current Location Weather</button>
+        </div>
+    </header>
+    
+    <div class="flex flex-col md:flex-row gap-2 m-3 p-2 overflow-hidden">
+        
+        <div class="flex flex-col flex-1 min-w-0 border-2 align-middle justify-around">
+            <div class="border-2 gap-3 m-3">
                 <div>
-                    <label class="m-2 p-1">City</label>
+                <label class="m-2 p-1 font-bold">City</label>
                     <input type="text" id="cityName" class="m-2 p-1 border border-black rounded-2xl" placeholder="enter city name">
                 </div>
                 <div id="saved_cities">
-                    <label class="border-2 rounded-2xl  ">Cities: </label>
+                    <label class="m-2 p-1 font-bold">Cities: </label>
                     <select name="saved_cities_ddl" id="cities_ddl" class="border-2 rounded-2xl">
             
                     </select>
                 </div>
             </div>
-            <div class="flex flex-col flex-1 text-red-600">
-                <div>
-                    <p id="city" class="underline "></p>
+            <div class="flex flex-1 font-semibold gap-3 m-3">
+                <div class=" flex-1 border-2">
+                    <h3 id="city" class="font-bold"></h3>
                     <p id="todays_date"></p>
-                    <p id="temp">temperature</p>
-                    <p id="feels_like">feels like: </p>
+                    <h3 class="font-bold">Temperature</h3>
+                    <p id="temp"></p>
+                    <p id="feels_like"></p>
                 </div>
-                <div>
-                    <p>Humidity Information</p>
+                <div class=" flex-1 border-2">
+                    <h3 class="font-bold">Humidity Information</h3>
                     <p id="humidity"></p>
                 </div>
-            <div class="flex-1 border-2">
-                <p>
-                    <i class="fa-solid fa-wind"></i>
-                </p>
-                <p id="wind_speed"></p>
-                <p id="deg">degree: </p>
+                <div class="flex-1 border-2">
+                    <div>
+                        <h3 class="font-bold">Wind Conditions</h3>
+                        <i class="fa-solid fa-wind"></i>
+                    </div>
+                    <p id="wind_speed"></p>
+                    <p id="deg">degree: </p>
+                </div>
             </div>
-        </div>
-        <div class="flex flex-col flex-1 bg-blue-300 border-2 rounded-2xl w-full">
-            <p>5 day forecast</p>
-            <div class="forecast flex flex-1 w-96 ">
+        <div class="flex flex-1 border-2 gap-3 m-3">
+            <p class="text-3xl font-bold text-center">Daily Forecast</p>
+            <div class="forecast flex flex-wrap font-semibold gap-4 w-full flex-1 ">
                  
             </div>
         </div>
-    </div>
+        </div>
     </div>
 <div id="customPopUp" class="customPopUp">
     <div id="messageBox" class="messageBox">
