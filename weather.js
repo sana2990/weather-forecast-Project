@@ -99,7 +99,7 @@ async function updateWeather() {
                 curr_city.innerHTML = val.toUpperCase();
                 temperature.textContent = city_data.main.temp + "°C";
                 air_stat.textContent = "wind speed: " + city_data.wind.speed + "kph";
-                feels_like.innerHTML = "feels like: " + city_data.main.feels_like + "°";
+                feels_like.innerHTML = "feels like: " + city_data.main.feels_like + "°C";
                 wind_deg.innerHTML = "degree: " + city_data.wind.deg;
                 let today = new Date();
                 todays_date.innerHTML = today.toDateString();
@@ -201,7 +201,7 @@ async function get5dayForecast(city) {
         }
         }
 
-        feelsLike.innerHTML = "Feels Like" + perDay.main.feels_like + "°C"
+        feelsLike.innerHTML = "Feels Like: " + perDay.main.feels_like + "°C"
         humid.innerHTML = "Humidity: " + perDay.main.humidity;
 
 
