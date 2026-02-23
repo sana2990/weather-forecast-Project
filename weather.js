@@ -40,7 +40,6 @@ user_Location.addEventListener("click", () => {
     navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        //console.log(pos.coords.latitude, pos.coords.longitude);
         getWeatherbyLoc(lat,lon);
     });
 });
@@ -51,10 +50,7 @@ async function getWeather(city){
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${APIKey}&units=metric`);
 
         const data = await response.json()
-        //console.log(response);
         if(!response.ok){
-            //console.log("error found is: ", data.statusText);
-            //alert(data.statusText);
             
             let msg = data.cod +" : " + data.message;
             iserror += msg;
@@ -62,12 +58,10 @@ async function getWeather(city){
             return null;
         }
         else{
-            //console.log(data);
             return data;
         }
 
 } catch(error){
-    //console.log(error);
 }
 }
 
@@ -94,7 +88,6 @@ async function updateWeather() {
                 if(city.length>0){
                     let cities = JSON.parse(localStorage.getItem("cities")) || [];
                     if(!cities.includes(city)){
-                        //console.log("citiies is " , cities)
                         cities.push(city);
                         localStorage.setItem("cities", JSON.stringify(cities));
                     }
@@ -113,7 +106,6 @@ async function updateWeather() {
                 humidity.innerHTML = "humidity: " + city_data.main.humidity + "%";
 
                 if(city_data.weather[0].main == "Clear") {
-                    console.log(bodyElement)
                     bodyElement.style.backgroundImage = 'url("./pictures/sunny.avif")';
                     
                 }
@@ -178,7 +170,6 @@ async function get5dayForecast(city) {
         let dailyforecast = extendedDays_data.list
         .filter(item => item.dt_txt.includes("12:00:00"))
         .filter(item => new Date(item.dt_txt).getDate() !== today);
-        console.log("daily forecast is: ", dailyforecast);
        dailyforecast.forEach(perDay => {
         let parent_div = document.createElement("div");
         parent_div.classList.add("forecast_parent")
@@ -187,10 +178,6 @@ async function get5dayForecast(city) {
         let temp = document.createElement("p");
         let feelsLike = document.createElement("p");
         let humid = document.createElement("p");
-
-        //for temperature
-        //console.log("per day temp is: " , perDay.main.temp);
-        
 
         //for temperature display image
         if ((perDay.weather.main == "rain") || (perDay.weather.main == "drizzle")) {
@@ -243,28 +230,17 @@ function showPopUp(message) {
         popupPara.textContent = message;
         popUpDiv.classList.remove("customPopUp");
         popUpDiv.classList.add("showCustomPopUp");
-        /*setTimeout(() => {
-            popUpDiv.classList.remove("showCustomPopUp");
-        popUpDiv.classList.add("customPopUp");
-    }, 3000);*/
     }
 }
 
 //function to show saved cities from local storage if any
 function showSavedCities(){
     let saved_cities = JSON.parse(localStorage.getItem("cities")) || [];
-    //console.log("saved cities on load are: ", saved_cities);
     if(saved_cities.length>0) {
-        //let savedCitiesArea = document.querySelector("#saved_cities");
         savedCitiesArea.classList.add("showSavedCities");
-        //savedCitiesArea.classList.add("showSavedCities");
-        //console.log("class name is ", savedCitiesArea.className);
          option_ddl.innerHTML = '<option value="">Select Item</option>'
 
-    //const saved_cities = JSON.parse( localStorage.getItem("cities")) || [];
-    //console.log("saved cities are: ", saved_cities);
-    saved_cities.forEach(city_saved => {
-        //console.log(city_saved);
+        saved_cities.forEach(city_saved => {
         let option = document.createElement("option");
         option.innerHTML = city_saved;
         option.value = city_saved;
@@ -283,12 +259,9 @@ async function getWeatherbyLoc(lat, lon) {
   try{
     const responseLoc = await fetch(url);
     const dataLoc = await responseLoc.json();
-    //console.log(dataLoc);
-    //console.log(dataLoc.name);
 
     if (dataLoc.cod == 200){
         loc_city = dataLoc.name;
-        //console.log("city name is : ", loc_city);
         updateWeather();
     }
     else{
